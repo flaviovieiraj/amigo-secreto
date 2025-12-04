@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteio de Amigo Secreto com Cores</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        h2 {
+            color: #3498db;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .participant-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .participant-card {
+            background-color: #ecf0f1;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .participant-card span {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .selection-area {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        #resetButton {
+            background-color: #e74c3c;
+        }
+        
+        #resetButton:hover {
+            background-color: #c0392b;
+        }
+        
+        .result {
+            background-color: #ecf9ff;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+            border-left: 5px solid #3498db;
+        }
+        
+        .result h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .result-name {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #3498db;
+            margin: 10px 0;
+        }
+        
+        .result-color {
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 30px;
+            display: inline-block;
+            margin-top: 10px;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .sorteios-realizados {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+        
+        .sorteios-list {
+            list-style-type: none;
+        }
+        
+        .sorteios-list li {
+            padding: 8px;
+            border-bottom: 1px dashed #ddd;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .sorteios-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .color-box {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        @media (min-width: 768px) {
+            .selection-area {
+                display: flex;
+                gap: 20px;
+                align-items: flex-end;
+            }
+            
+            .selection-area div {
+                flex: 1;
+            }
+            
+            button {
+                width: auto;
+                display: inline-block;
+                margin-right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎁 Sorteio de Amigo Secreto com Cores 🎨</h1>
+        <p class="subtitle">Cada participante sorteia uma pessoa diferente e uma cor única!</p>
+        
+        <div class="section">
+            <h2>Participantes e Cores Disponíveis</h2>
+            <div class="participant-list" id="participantList"></div>
+        </div>
+        
+        <div class="selection-area">
+            <div style="flex: 1;">
+                <label for="participantSelect">Selecione seu nome:</label>
+                <select id="participantSelect">
+                    <option value="">Selecione seu nome...</option>
+                </select>
+            </div>
+            <div>
+                <button id="sortearButton">Sortear Amigo Secreto</button>
+                <button id="resetButton">Reiniciar Sorteio</button>
+            </div>
+        </div>
+        
+        <div class="result" id="result">
+            <h3>Seu amigo secreto é:</h3>
+            <div class="result-name" id="resultName"></div>
+            <h3>Sua cor sorteada é:</h3>
+            <div class="result-color" id="resultColor"></div>
+            <p style="margin-top: 15px; font-style: italic;">Anote essa informação e mantenha em segredo!</p>
+        </div>
+        
+        <div class="sorteios-realizados" id="sorteiosSection" style="display: none;">
+            <h2>Sorteios Realizados</h2>
+            <ul class="sorteios-list" id="sorteiosList"></ul>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Programa de Sorteio de Amigo Secreto | Desenvolvido para funcionar diretamente no navegador</p>
+    </footer>
+
+    <script>
+        // Listas predefinidas com 10 nomes e 10 cores
+        const participantes = [
+            "Ana Silva", "Bruno Santos", "Carla Mendes", "Diego Oliveira", 
+            "Elena Costa", "Fábio Rocha", "Gabriela Lima", "Henrique Alves", 
+            "Isabela Souza", "João Pereira"
+        ];
+        
+        const cores = [
+            { nome: "Vermelho", codigo: "#e74c3c" },
+            { nome: "Azul", codigo: "#3498db" },
+            { nome: "Verde", codigo: "#2ecc71" },
+            { nome: "Amarelo", codigo: "#f1c40f" },
+            { nome: "Roxo", codigo: "#9b59b6" },
+            { nome: "Laranja", codigo: "#e67e22" },
+            { nome: "Rosa", codigo: "#e84393" },
+            { nome: "Turquesa", codigo: "#1abc9c" },
+            { nome: "Marrom", codigo: "#a1887f" },
+            { nome: "Cinza", codigo: "#95a5a6" }
+        ];
+        
+        // Variáveis para controle do sorteio
+        let sorteados = {}; // Mapeia quem cada pessoa sorteou
+        let coresSorteadas = {}; // Mapeia qual cor cada pessoa recebeu
+        let participantesQueJaSortearam = []; // Lista de participantes que já fizeram o sorteio
+        
+        // Elementos do DOM
+        const participantSelect = document.getElementById('participantSelect');
+        const participantList = document.getElementById('participantList');
+        const sortearButton = document.getElementById('sortearButton');
+        const resetButton = document.getElementById('resetButton');
+        const result = document.getElementById('result');
+        const resultName = document.getElementById('resultName');
+        const resultColor = document.getElementById('resultColor');
+        const sorteiosSection = document.getElementById('sorteiosSection');
+        const sorteiosList = document.getElementById('sorteiosList');
+        
+        // Inicializar o programa
+        function inicializar() {
+            // Preencher a lista de participantes visual
+            participantes.forEach((participante, index) => {
+                const cor = cores[index % cores.length]; // Distribuir cores visualmente
+                
+                const card = document.createElement('div');
+                card.className = 'participant-card';
+                card.innerHTML = `
+                    <span style="background-color: ${cor.codigo}"></span>
+                    ${participante}
+                `;
+                participantList.appendChild(card);
+            });
+            
+            // Preencher o dropdown de seleção
+            participantes.forEach(participante => {
+                const option = document.createElement('option');
+                option.value = participante;
+                option.textContent = participante;
+                participantSelect.appendChild(option);
+            });
+            
+            // Adicionar eventos
+            sortearButton.addEventListener('click', realizarSorteio);
+            resetButton.addEventListener('click', reiniciarSorteio);
+        }
+        
+        // Função para realizar o sorteio
+        function realizarSorteio() {
+            const participante = participantSelect.value;
+            
+            // Validar seleção
+            if (!participante) {
+                alert('Por favor, selecione seu nome na lista.');
+                return;
+            }
+            
+            // Verificar se o participante já realizou o sorteio
+            if (participantesQueJaSortearam.includes(participante)) {
+                alert('Você já realizou o sorteio! Se precisar sortear novamente, reinicie o sorteio.');
+                return;
+            }
+            
+            // Verificar se ainda há participantes disponíveis para sortear
+            const participantesDisponiveis = participantes.filter(p => 
+                p !== participante && !Object.values(sorteados).includes(p)
+            );
+            
+            // Verificar se ainda há cores disponíveis
+            const coresDisponiveis = cores.filter(cor => 
+                !Object.values(coresSorteadas).includes(cor.nome)
+            );
+            
+            if (participantesDisponiveis.length === 0) {
+                alert('Todos os participantes já foram sorteados! Reinicie o sorteio para começar novamente.');
+                return;
+            }
+            
+            if (coresDisponiveis.length === 0) {
+                alert('Todas as cores já foram sorteadas! Reinicie o sorteio para começar novamente.');
+                return;
+            }
+            
+            // Sortear um participante aleatório
+            const indiceSorteado = Math.floor(Math.random() * participantesDisponiveis.length);
+            const amigoSorteado = participantesDisponiveis[indiceSorteado];
+            
+            // Sortear uma cor aleatória
+            const indiceCorSorteada = Math.floor(Math.random() * coresDisponiveis.length);
+            const corSorteada = coresDisponiveis[indiceCorSorteada];
+            
+            // Registrar o sorteio
+            sorteados[participante] = amigoSorteado;
+            coresSorteadas[participante] = corSorteada.nome;
+            participantesQueJaSortearam.push(participante);
+            
+            // Exibir resultado
+            resultName.textContent = amigoSorteado;
+            resultColor.textContent = corSorteada.nome;
+            resultColor.style.backgroundColor = corSorteada.codigo;
+            result.style.display = 'block';
+            
+            // Atualizar lista de sorteios realizados
+            atualizarListaSorteios();
+            
+            // Desabilitar a seleção para este participante
+            participantSelect.value = "";
+            
+            // Rolar até o resultado
+            result.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Atualizar a lista de sorteios realizados
+        function atualizarListaSorteios() {
+            // Limpar lista atual
+            sorteiosList.innerHTML = '';
+            
+            // Adicionar cada sorteio realizado
+            participantesQueJaSortearam.forEach(participante => {
+                const item = document.createElement('li');
+                const cor = cores.find(c => c.nome === coresSorteadas[participante]);
+                
+                item.innerHTML = `
+                    <span><strong>${participante}</strong></span>
+                    <span>
+                        <span class="color-box" style="background-color: ${cor.codigo}"></span>
+                        ${sorteados[participante]} (${coresSorteadas[participante]})
+                    </span>
+                `;
+                sorteiosList.appendChild(item);
+            });
+            
+            // Mostrar a seção se houver sorteios
+            if (participantesQueJaSortearam.length > 0) {
+                sorteiosSection.style.display = 'block';
+            }
+        }
+        
+        // Reiniciar todo o sorteio
+        function reiniciarSorteio() {
+            if (confirm('Tem certeza que deseja reiniciar o sorteio? Todos os resultados serão perdidos.')) {
+                sorteados = {};
+                coresSorteadas = {};
+                participantesQueJaSortearam = [];
+                
+                result.style.display = 'none';
+                sorteiosSection.style.display = 'none';
+                participantSelect.value = "";
+                
+                alert('Sorteio reiniciado! Todos podem sortear novamente.');
+            }
+        }
+        
+        // Inicializar o programa quando a página carregar
+        document.addEventListener('DOMContentLoaded', inicializar);
+    </script>
+</body>
+</html>
