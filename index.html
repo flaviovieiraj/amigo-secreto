@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteio de Amigo Secreto com Cores</title>
+    <title>AMIGO SECRETO DO SETOR TÉCNICO</title>
     <style>
         * {
             box-sizing: border-box;
@@ -256,7 +256,7 @@
 <body>
     <div class="container">
         <h1>🎁 Sorteio de Amigo Secreto com Cores 🎨</h1>
-        <p class="subtitle">Cada participante sorteia uma pessoa diferente e uma cor única!</p>
+        <p class="subtitle">Cada participante sorteia uma pessoa e uma cor única!</p>
         
         <div class="info-box">
             <strong>Instruções:</strong> Selecione seu nome, clique em "Sortear" e anote o resultado.
@@ -269,14 +269,14 @@
         
         <div class="selection-area">
             <div style="flex: 1;">
-                <label for="participantSelect">Selecione seu nome:</label>
+                <label for="participantSelect">selecione seu nome:</label>
                 <select id="participantSelect">
-                    <option value="">Selecione seu nome...</option>
+                    <option value="">nome...</option>
                 </select>
             </div>
             <div>
-                <button id="sortearButton">Sortear Amigo Secreto</button>
-                <button id="resetButton">Reiniciar Todos os Sorteios</button>
+                <button id="sortearButton">sortear</button>
+                <button id="resetButton">resetar os sorteios</button>
             </div>
         </div>
         
@@ -413,7 +413,6 @@
                 }
                 
                 card.innerHTML = `
-                    <span style="background-color: ${cor.codigo}"></span>
                     ${participante}
                     ${participantesQueJaSortearam.includes(participante) ? ' ✓' : ''}
                 `;
@@ -429,7 +428,7 @@
                 // Desabilitar opção se já tiver sorteado
                 if (participantesQueJaSortearam.includes(participante)) {
                     option.disabled = true;
-                    option.textContent += ' (já sorteu)';
+                    option.textContent += ' (já sorteou)';
                 }
                 
                 participantSelect.appendChild(option);
@@ -606,7 +605,7 @@
         
         // Reiniciar todo o sorteio
         function reiniciarSorteio() {
-            if (confirm('Tem certeza que deseja reiniciar TODOS os sorteios?\n\nIsso apagará todos os resultados e todos poderão sortear novamente.')) {
+            if (confirm('Isso apagará todos os resultados e todos poderão sortear novamente.\n\nSe você é corno aperte ok.')) {
                 sorteados = {};
                 coresSorteadas = {};
                 participantesQueJaSortearam = [];
@@ -636,5 +635,6 @@
     </script>
 </body>
 </html>
+
 
 
