@@ -259,11 +259,11 @@
         <p class="subtitle">Cada participante sorteia uma pessoa diferente e uma cor única!</p>
         
         <div class="info-box">
-            <strong>Instruções:</strong> Selecione seu nome, clique em "Sortear" e anote o resultado. Os dados são salvos automaticamente e permanecem mesmo após fechar a página.
+            <strong>Instruções:</strong> Selecione seu nome, clique em "Sortear" e anote o resultado.
         </div>
         
         <div class="section">
-            <h2>Participantes e Cores Disponíveis</h2>
+            <h2>Participantes</h2>
             <div class="participant-list" id="participantList"></div>
         </div>
         
@@ -595,7 +595,6 @@
                         <span><strong>${participante}</strong></span>
                         <span class="status-sorteado">
                             Já realizou o sorteio
-                            ${cor ? `<span class="color-box" style="background-color: ${cor.codigo}" title="${cor.nome}"></span>` : ''}
                         </span>
                     `;
                     sorteiosList.appendChild(item);
@@ -637,3 +636,4 @@
     </script>
 </body>
 </html>
+
