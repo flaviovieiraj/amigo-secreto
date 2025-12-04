@@ -68,6 +68,11 @@
             align-items: center;
         }
         
+        .participant-card.sorteado {
+            background-color: #d4edda;
+            border: 2px solid #c3e6cb;
+        }
+        
         .participant-card span {
             display: inline-block;
             width: 20px;
@@ -170,14 +175,36 @@
         }
         
         .sorteios-list li {
-            padding: 8px;
+            padding: 12px;
             border-bottom: 1px dashed #ddd;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         
         .sorteios-list li:last-child {
             border-bottom: none;
+        }
+        
+        .status-sorteado {
+            color: #28a745;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .status-sorteado:before {
+            content: "✓";
+            background-color: #28a745;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-size: 0.8rem;
         }
         
         .color-box {
@@ -187,12 +214,23 @@
             border-radius: 4px;
             margin-right: 10px;
             vertical-align: middle;
+            border: 1px solid rgba(0,0,0,0.1);
         }
         
         footer {
             text-align: center;
             margin-top: 30px;
             color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .info-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
             font-size: 0.9rem;
         }
         
@@ -220,6 +258,10 @@
         <h1>🎁 Sorteio de Amigo Secreto com Cores 🎨</h1>
         <p class="subtitle">Cada participante sorteia uma pessoa diferente e uma cor única!</p>
         
+        <div class="info-box">
+            <strong>Instruções:</strong> Selecione seu nome, clique em "Sortear" e anote o resultado. Os dados são salvos automaticamente e permanecem mesmo após fechar a página.
+        </div>
+        
         <div class="section">
             <h2>Participantes e Cores Disponíveis</h2>
             <div class="participant-list" id="participantList"></div>
@@ -234,7 +276,7 @@
             </div>
             <div>
                 <button id="sortearButton">Sortear Amigo Secreto</button>
-                <button id="resetButton">Reiniciar Sorteio</button>
+                <button id="resetButton">Reiniciar Todos os Sorteios</button>
             </div>
         </div>
         
@@ -243,17 +285,25 @@
             <div class="result-name" id="resultName"></div>
             <h3>Sua cor sorteada é:</h3>
             <div class="result-color" id="resultColor"></div>
-            <p style="margin-top: 15px; font-style: italic;">Anote essa informação e mantenha em segredo!</p>
+            <p style="margin-top: 15px; font-style: italic; padding: 10px; background-color: #fff3cd; border-radius: 5px;">
+                <strong>⚠️ IMPORTANTE:</strong> Anote essa informação em um local seguro! Você não poderá ver novamente.
+            </p>
         </div>
         
         <div class="sorteios-realizados" id="sorteiosSection" style="display: none;">
             <h2>Sorteios Realizados</h2>
+            <p style="margin-bottom: 15px; color: #666; font-size: 0.9rem;">
+                Participantes que já realizaram o sorteio:
+            </p>
             <ul class="sorteios-list" id="sorteiosList"></ul>
+            <p style="margin-top: 15px; color: #666; font-size: 0.9rem; font-style: italic;">
+                Total: <span id="totalSorteios">0</span> de <span id="totalParticipantes">10</span> participantes
+            </p>
         </div>
     </div>
     
     <footer>
-        <p>Programa de Sorteio de Amigo Secreto | Desenvolvido para funcionar diretamente no navegador</p>
+        <p>Programa de Sorteio de Amigo Secreto | Dados salvos localmente no navegador</p>
     </footer>
 
     <script>
@@ -277,6 +327,13 @@
             { nome: "Cinza", codigo: "#95a5a6" }
         ];
         
+        // Chaves para localStorage
+        const STORAGE_KEYS = {
+            SORTEADOS: 'amigoSecreto_sorteados',
+            CORES_SORTEADAS: 'amigoSecreto_coresSorteadas',
+            PARTICIPANTES_SORTEADOS: 'amigoSecreto_participantesSorteados'
+        };
+        
         // Variáveis para controle do sorteio
         let sorteados = {}; // Mapeia quem cada pessoa sorteou
         let coresSorteadas = {}; // Mapeia qual cor cada pessoa recebeu
@@ -292,18 +349,73 @@
         const resultColor = document.getElementById('resultColor');
         const sorteiosSection = document.getElementById('sorteiosSection');
         const sorteiosList = document.getElementById('sorteiosList');
+        const totalSorteios = document.getElementById('totalSorteios');
+        const totalParticipantes = document.getElementById('totalParticipantes');
+        
+        // Carregar dados salvos do localStorage
+        function carregarDadosSalvos() {
+            try {
+                // Carregar sorteados
+                const sorteadosSalvos = localStorage.getItem(STORAGE_KEYS.SORTEADOS);
+                if (sorteadosSalvos) {
+                    sorteados = JSON.parse(sorteadosSalvos);
+                }
+                
+                // Carregar cores sorteadas
+                const coresSorteadasSalvas = localStorage.getItem(STORAGE_KEYS.CORES_SORTEADAS);
+                if (coresSorteadasSalvas) {
+                    coresSorteadas = JSON.parse(coresSorteadasSalvas);
+                }
+                
+                // Carregar participantes que já sortearam
+                const participantesSorteadosSalvos = localStorage.getItem(STORAGE_KEYS.PARTICIPANTES_SORTEADOS);
+                if (participantesSorteadosSalvos) {
+                    participantesQueJaSortearam = JSON.parse(participantesSorteadosSalvos);
+                }
+                
+                console.log('Dados carregados do localStorage:', { sorteados, coresSorteadas, participantesQueJaSortearam });
+            } catch (error) {
+                console.error('Erro ao carregar dados do localStorage:', error);
+                // Se der erro, reinicia os dados
+                sorteados = {};
+                coresSorteadas = {};
+                participantesQueJaSortearam = [];
+            }
+        }
+        
+        // Salvar dados no localStorage
+        function salvarDados() {
+            try {
+                localStorage.setItem(STORAGE_KEYS.SORTEADOS, JSON.stringify(sorteados));
+                localStorage.setItem(STORAGE_KEYS.CORES_SORTEADAS, JSON.stringify(coresSorteadas));
+                localStorage.setItem(STORAGE_KEYS.PARTICIPANTES_SORTEADOS, JSON.stringify(participantesQueJaSortearam));
+                console.log('Dados salvos no localStorage');
+            } catch (error) {
+                console.error('Erro ao salvar dados no localStorage:', error);
+            }
+        }
         
         // Inicializar o programa
         function inicializar() {
+            // Carregar dados salvos
+            carregarDadosSalvos();
+            
             // Preencher a lista de participantes visual
             participantes.forEach((participante, index) => {
                 const cor = cores[index % cores.length]; // Distribuir cores visualmente
                 
                 const card = document.createElement('div');
                 card.className = 'participant-card';
+                
+                // Marcar como sorteado se já tiver sorteado
+                if (participantesQueJaSortearam.includes(participante)) {
+                    card.classList.add('sorteado');
+                }
+                
                 card.innerHTML = `
                     <span style="background-color: ${cor.codigo}"></span>
                     ${participante}
+                    ${participantesQueJaSortearam.includes(participante) ? ' ✓' : ''}
                 `;
                 participantList.appendChild(card);
             });
@@ -313,8 +425,22 @@
                 const option = document.createElement('option');
                 option.value = participante;
                 option.textContent = participante;
+                
+                // Desabilitar opção se já tiver sorteado
+                if (participantesQueJaSortearam.includes(participante)) {
+                    option.disabled = true;
+                    option.textContent += ' (já sorteu)';
+                }
+                
                 participantSelect.appendChild(option);
             });
+            
+            // Atualizar contadores
+            totalParticipantes.textContent = participantes.length;
+            totalSorteios.textContent = participantesQueJaSortearam.length;
+            
+            // Atualizar lista de sorteios realizados
+            atualizarListaSorteios();
             
             // Adicionar eventos
             sortearButton.addEventListener('click', realizarSorteio);
@@ -333,7 +459,7 @@
             
             // Verificar se o participante já realizou o sorteio
             if (participantesQueJaSortearam.includes(participante)) {
-                alert('Você já realizou o sorteio! Se precisar sortear novamente, reinicie o sorteio.');
+                alert('Você já realizou o sorteio!');
                 return;
             }
             
@@ -370,6 +496,9 @@
             coresSorteadas[participante] = corSorteada.nome;
             participantesQueJaSortearam.push(participante);
             
+            // Salvar dados no localStorage
+            salvarDados();
+            
             // Exibir resultado
             resultName.textContent = amigoSorteado;
             resultColor.textContent = corSorteada.nome;
@@ -379,51 +508,127 @@
             // Atualizar lista de sorteios realizados
             atualizarListaSorteios();
             
-            // Desabilitar a seleção para este participante
+            // Atualizar a lista visual de participantes
+            atualizarListaParticipantesVisual();
+            
+            // Atualizar dropdown
+            atualizarDropdown();
+            
+            // Limpar seleção
             participantSelect.value = "";
+            
+            // Atualizar contador
+            totalSorteios.textContent = participantesQueJaSortearam.length;
             
             // Rolar até o resultado
             result.scrollIntoView({ behavior: 'smooth' });
+            
+            // Mostrar alerta importante
+            alert(`ANOTE SEU RESULTADO!\n\nAmigo Secreto: ${amigoSorteado}\nCor: ${corSorteada.nome}\n\nVocê não poderá ver essa informação novamente!`);
         }
         
-        // Atualizar a lista de sorteios realizados
+        // Atualizar a lista visual de participantes
+        function atualizarListaParticipantesVisual() {
+            // Limpar lista atual
+            participantList.innerHTML = '';
+            
+            // Recriar a lista
+            participantes.forEach((participante, index) => {
+                const cor = cores[index % cores.length];
+                
+                const card = document.createElement('div');
+                card.className = 'participant-card';
+                
+                // Marcar como sorteado se já tiver sorteado
+                if (participantesQueJaSortearam.includes(participante)) {
+                    card.classList.add('sorteado');
+                }
+                
+                card.innerHTML = `
+                    <span style="background-color: ${cor.codigo}"></span>
+                    ${participante}
+                    ${participantesQueJaSortearam.includes(participante) ? ' ✓' : ''}
+                `;
+                participantList.appendChild(card);
+            });
+        }
+        
+        // Atualizar dropdown
+        function atualizarDropdown() {
+            // Limpar dropdown
+            participantSelect.innerHTML = '<option value="">Selecione seu nome...</option>';
+            
+            // Recriar opções
+            participantes.forEach(participante => {
+                const option = document.createElement('option');
+                option.value = participante;
+                option.textContent = participante;
+                
+                // Desabilitar opção se já tiver sorteado
+                if (participantesQueJaSortearam.includes(participante)) {
+                    option.disabled = true;
+                    option.textContent += ' (já sorteu)';
+                }
+                
+                participantSelect.appendChild(option);
+            });
+        }
+        
+        // Atualizar a lista de sorteios realizados (apenas mostra quem já sorteou)
         function atualizarListaSorteios() {
             // Limpar lista atual
             sorteiosList.innerHTML = '';
             
-            // Adicionar cada sorteio realizado
-            participantesQueJaSortearam.forEach(participante => {
-                const item = document.createElement('li');
-                const cor = cores.find(c => c.nome === coresSorteadas[participante]);
-                
-                item.innerHTML = `
-                    <span><strong>${participante}</strong></span>
-                    <span>
-                        <span class="color-box" style="background-color: ${cor.codigo}"></span>
-                        ${sorteados[participante]} (${coresSorteadas[participante]})
-                    </span>
-                `;
-                sorteiosList.appendChild(item);
-            });
-            
             // Mostrar a seção se houver sorteios
             if (participantesQueJaSortearam.length > 0) {
                 sorteiosSection.style.display = 'block';
+                
+                // Ordenar participantes que já sortearam
+                const participantesSorteadosOrdenados = [...participantesQueJaSortearam].sort();
+                
+                // Adicionar cada participante que já sorteou
+                participantesSorteadosOrdenados.forEach(participante => {
+                    const item = document.createElement('li');
+                    const cor = cores.find(c => c.nome === coresSorteadas[participante]);
+                    
+                    item.innerHTML = `
+                        <span><strong>${participante}</strong></span>
+                        <span class="status-sorteado">
+                            Já realizou o sorteio
+                            ${cor ? `<span class="color-box" style="background-color: ${cor.codigo}" title="${cor.nome}"></span>` : ''}
+                        </span>
+                    `;
+                    sorteiosList.appendChild(item);
+                });
+            } else {
+                sorteiosSection.style.display = 'none';
             }
         }
         
         // Reiniciar todo o sorteio
         function reiniciarSorteio() {
-            if (confirm('Tem certeza que deseja reiniciar o sorteio? Todos os resultados serão perdidos.')) {
+            if (confirm('Tem certeza que deseja reiniciar TODOS os sorteios?\n\nIsso apagará todos os resultados e todos poderão sortear novamente.')) {
                 sorteados = {};
                 coresSorteadas = {};
                 participantesQueJaSortearam = [];
                 
+                // Limpar localStorage
+                localStorage.removeItem(STORAGE_KEYS.SORTEADOS);
+                localStorage.removeItem(STORAGE_KEYS.CORES_SORTEADAS);
+                localStorage.removeItem(STORAGE_KEYS.PARTICIPANTES_SORTEADOS);
+                
                 result.style.display = 'none';
                 sorteiosSection.style.display = 'none';
-                participantSelect.value = "";
                 
-                alert('Sorteio reiniciado! Todos podem sortear novamente.');
+                // Atualizar interface
+                atualizarListaParticipantesVisual();
+                atualizarDropdown();
+                atualizarListaSorteios();
+                
+                // Atualizar contador
+                totalSorteios.textContent = 0;
+                
+                alert('Todos os sorteios foram reiniciados! Todos podem sortear novamente.');
             }
         }
         
